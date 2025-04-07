@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primary_color">#2196F3</color>
+    <color name="secondary_color">#AFDAF8</color>
+    <color name="medium_color">#e2bac2</color>
+    <color name="low_color">#dce1b6</color>
+    <color name="surface_color">#DEDBDB</color>
+    <color name="surface_color2">#e2bac2</color>
+    <color name="trash_color">#df5e22</color>
+    <color name="background_uth">#e9f4ff</color>
+</resources>
