@@ -1,5 +1,6 @@
 package com.example.mvvmexercise
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -7,9 +8,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -18,12 +21,17 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 
 @Composable
-fun AddScreen(navController: NavController, jobViewModel: JobViewModel) {
-    var title by remember { mutableStateOf(TextFieldValue("")) }
-    var description by remember { mutableStateOf(TextFieldValue("")) }
+fun AddScreen(navController: NavController, taskViewModel: taskViewModel) {
+    var title by remember {
+        mutableStateOf(TextFieldValue(""))
+    }
+    var description by remember {
+        mutableStateOf(TextFieldValue(""))
+    }
 
     Column(
         modifier = Modifier
@@ -38,7 +46,7 @@ fun AddScreen(navController: NavController, jobViewModel: JobViewModel) {
             modifier = Modifier.fillMaxWidth(),
             contentAlignment = Alignment.Center
         ) {
-            ButtonAdd(title, description, jobViewModel, navController)
+            ButtonAdd(title, description, taskViewModel, navController)
         }
     }
 }
@@ -150,13 +158,19 @@ fun BodyAdd(
 fun ButtonAdd(
     title: TextFieldValue,
     description: TextFieldValue,
-    jobViewModel: JobViewModel,
+    taskViewModel: taskViewModel,
     navController: NavController
 ) {
+    val context = LocalContext.current
     Button(
         onClick = {
+            if (title.text.isEmpty() || description.text.isEmpty()) {
+                Toast.makeText(context, "Dữ liệu không được trống", Toast.LENGTH_SHORT).show()
+            }
+            else {
             navController.popBackStack()
-            jobViewModel.addJob(title.text, description.text)
+            taskViewModel.addTask(title.text, description.text)
+            }
         },
         modifier = Modifier.width(150.dp),
         colors = ButtonDefaults.buttonColors(

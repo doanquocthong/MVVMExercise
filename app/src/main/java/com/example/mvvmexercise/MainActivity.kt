@@ -15,7 +15,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.mvvmexercise.ui.theme.MVVMExerciseTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -24,14 +23,14 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val navController = rememberNavController()
-            val jobViewModel: JobViewModel = viewModel()
+            val taskViewModel: taskViewModel = viewModel()
 
             NavHost(navController, startDestination = "list") {
                 composable("list") {
-                    ListScreen(navController, jobViewModel)
+                    ListScreen(navController, taskViewModel)
                 }
-                composable("add") {
-                    AddScreen(navController, jobViewModel)
+               composable("add") {
+                   AddScreen(navController, taskViewModel)
                 }
             }
         }

@@ -2,7 +2,9 @@ package com.example.mvvmexercise
 
 import android.util.Log
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,34 +17,31 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 
 @Composable
-fun ListScreen(navController: NavController, jobViewModel: JobViewModel){
+fun ListScreen(navController: NavController, taskViewModel: taskViewModel){
     Column (
         modifier = Modifier
             .fillMaxSize()
@@ -52,7 +51,11 @@ fun ListScreen(navController: NavController, jobViewModel: JobViewModel){
         Spacer(
             modifier = Modifier.padding(top = 40.dp)
         )
-        BodyList(jobViewModel)
+        ButtonSpam(taskViewModel)
+        Spacer(
+            modifier = Modifier.padding(top = 40.dp)
+        )
+        BodyList(taskViewModel)
     }
 
 }
@@ -123,54 +126,120 @@ fun HeaderList(navController: NavController) {
 }
 
 @Composable
-fun BodyList(jobViewModel: JobViewModel){
-    val jobs by jobViewModel.jobs
-    LazyColumn {
-        items(jobs.size) { index ->
-            CardItem(job = jobs[index])
-        }
-    }
+fun BodyList(taskViewModel: taskViewModel){
+    val tasks by taskViewModel.taskList.observeAsState()
+    tasks?.let {
+        LazyColumn(
+            modifier = Modifier,
+            content = {
+                itemsIndexed(it){index: Int, item: DataType ->
+                    CardItem(
+                        task = item, taskViewModel
+                    )
+                }
+            }
+        )
+    }?: Text(
+        modifier = Modifier.fillMaxWidth(),
+        textAlign = TextAlign.Center,
+        text = "No items yet",
+        fontSize = 16.sp
+    )
 }
 
 @Composable
-fun CardItem(job: Job){
-    val cardColors = listOf(
-        colorResource(R.color.medium_color), // LightPink
-        colorResource(R.color.secondary_color), // LightBlue
-        colorResource(R.color.low_color) // LightGreen
-    )
-    val randomColor = cardColors.random()
+fun CardItem(task : DataType, taskViewModel: taskViewModel){
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(bottom = 15.dp),
         colors = CardDefaults.cardColors(
-            containerColor = randomColor
+            containerColor = colorResource(R.color.secondary_color)
         )
     ) {
-        Column(
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(20.dp)
+                .padding(20.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Column(
-
+                modifier = Modifier
+                    .weight(1f)
             ) {
                 Text(
-                    text = job.title,
+                    text = task.title,
                     fontWeight = FontWeight.Bold,
                     fontSize = 17.sp,
                     modifier = Modifier
                 )
                 Text(
-                    text = job.description,
+                    text = task.description,
                     fontSize = 17.sp,
                     modifier = Modifier
                 )
-
             }
+            Surface(
+                shape = CircleShape,
+                modifier = Modifier
+                    .size(40.dp)
+                    .clickable {
+                        taskViewModel.deleteTask(task.id)
+                    }
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.baseline_delete_outline_24),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .padding(5.dp)
+                )
+            }
+
         }
 
 
     }
+}
+
+@Composable
+fun ButtonSpam(taskViewModel: taskViewModel) {
+    Row (
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ){
+        Button(
+            onClick = {
+                for (i in 1..10) {
+                    taskViewModel.addTask("Index ${i}", "${i}| Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua...")
+                }
+            },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = colorResource(R.color.primary_color)
+            )
+        ) {
+            Text(
+                "Spam 10 tasks",
+                fontSize = 15.sp,
+                modifier = Modifier.padding(10.dp)
+            )
+        }
+        Button(
+            onClick = {
+                taskViewModel.deleteAllTask()
+            },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = colorResource(R.color.primary_color)
+            )
+        ) {
+            Text(
+                "Delete All Task",
+                fontSize = 15.sp,
+                modifier = Modifier.padding(10.dp)
+            )
+        }
+    }
+
+
+
 }
